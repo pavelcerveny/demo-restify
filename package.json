@@ -1,0 +1,68 @@
+{
+  "name": "nest",
+  "version": "0.0.0",
+  "description": "description",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "start": "ts-node -r tsconfig-paths/register src/main.ts",
+    "start:dev": "nodemon",
+    "start:debug": "nodemon --config nodemon-debug.json",
+    "prestart:prod": "rimraf dist && tsc -p tsconfig.build.json",
+    "start:prod": "node dist/main.js",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
+    "migration:generate": "ts-node ./node_modules/typeorm/cli.js migration:create -n",
+    "migration:run": "ts-node ./node_modules/typeorm/cli.js --config='migrations.json' migration:run",
+    "migration-dev:run": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --config='migrations-dev.json' migration:run",
+    "migration:revert": "ts-node ./node_modules/typeorm/cli.js --config='migrations.json' migration:revert",
+    "migration-dev:revert": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --config='migrations-dev.json' migration:revert"
+  },
+  "dependencies": {
+    "mysql": "2.18.1",
+    "pino": "^6.6.1",
+    "reflect-metadata": "^0.1.13",
+    "restify": "^8.5.1",
+    "rimraf": "^3.0.2",
+    "typeorm": "^0.2.26",
+    "typescript": "^4.0.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.14",
+    "@types/mysql": "^2.15.15",
+    "@types/node": "^14.11.2",
+    "@types/pino": "^6.3.1",
+    "@types/restify": "^8.4.2",
+    "@types/supertest": "^2.0.10",
+    "jest": "^26.4.2",
+    "nodemon": "^2.0.4",
+    "prettier": "^2.1.2",
+    "supertest": "^4.0.2",
+    "ts-jest": "^26.4.0",
+    "ts-loader": "^8.0.4",
+    "ts-node": "^9.0.0",
+    "tsconfig-paths": "^3.9.0",
+    "tslint": "6.1.2"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  }
+}
