@@ -1,6 +1,6 @@
 import {Next, Response, Request} from "restify";
-import {User} from "../modules/user/user.entity";
-import App from "./server";
+import {User} from "../../modules/user/user.entity";
+import App from "../server";
 
 
 export const apiKeyAuthMiddleware = async (req: Request, res: Response, next: Next) => {

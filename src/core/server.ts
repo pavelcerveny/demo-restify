@@ -1,13 +1,16 @@
 import * as pino from 'pino';
-import {RequestHandler, Server, Request, Response, Next} from 'restify';
+import {Server, Request, Response, Next} from 'restify';
 import * as restify from 'restify';
-import {BaseError, NotFoundError} from "./errors";
 import {createConnection} from "typeorm";
 import {Connection} from "typeorm/connection/Connection";
 import {UsersController} from "../modules/user/users.controller";
 import {MonitoringResultsController} from "../modules/monitoringResult/monitoring-results.controller";
+import CronService from "./cron/cron.service";
+import {MonitoredEndpoint} from "../modules/monitoredEndpoint/monitored-endpoints.entity";
 
 export default class App {
+
+    public static database: Connection;
 
     private port: number = parseInt(process.env.PORT, 10) || 3000;
 
@@ -15,11 +18,9 @@ export default class App {
 
     private databaseInstance: Connection;
 
-    public static database: Connection;
+    private logger = pino();
 
-    private logger = pino({
-
-    });
+    private cronService: CronService;
 
     public async run(): Promise<void> {
         try {
@@ -29,6 +30,7 @@ export default class App {
             await this.database();
             this.middlewares();
             this.routes();
+            await this.initCronService();
 
             this.server.on("error", (err: Error) => {
                 this.logger.error("Could not start a server", err);
@@ -46,8 +48,9 @@ export default class App {
         return restify.createServer();
     }
 
-    public stop = (): void => {
+    public stop = async (): Promise<void> => {
         this.server.close();
+        await this.databaseInstance.close();
     }
 
     private database = async (): Promise<void> => {
@@ -72,6 +75,19 @@ export default class App {
         );
     }
 
+    private monitor() {
+
+    }
+
+    private async initCronService() {
+        this.cronService = new CronService();
+        const cronJobs = await this.getDatabase().getRepository(MonitoredEndpoint).find();
+        cronJobs.forEach(job => {
+           this.cronService.addInterval(job.name, this.monitor);
+        });
+        this.cronService.mountIntervals();
+    }
+
     private routes = (): void => {
 
         const usersController = new UsersController();
@@ -79,7 +95,7 @@ export default class App {
         usersController.initialize(this.server);
         monitoringResultsController.initialize(this.server);
 
-        this.server.get('/health-check', (req: Request, res: Response, next: Next) => {
+        this.server.get('/health-check', (req: Request, res: Response) => {
             this.logger.debug('Health check');
             res.json({
                 status: "ok",

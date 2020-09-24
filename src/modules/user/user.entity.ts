@@ -1,5 +1,6 @@
 import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {MonitoredEndpoint} from "../monitoredEndpoint/monitored-endpoints.entity";
+import {MonitoringResult} from "../monitoringResult/monitoring-results.entity";
 
 @Entity('users')
 export class User {
