@@ -1,6 +1,7 @@
 import {Connection} from "typeorm";
 import {MonitoringResult} from "../../../modules/monitoringResult/monitoring-results.entity";
 import {MonitoredEndpoint} from "../../../modules/monitoredEndpoint/monitored-endpoints.entity";
+import App from "../../server";
 
 interface CronJobProps {
     database: Connection;
@@ -25,7 +26,7 @@ export default async function FetchJob ({cronJob, database}: CronJobProps): Prom
     try {
         await database.getRepository(MonitoringResult).insert(monitoringResult);
     } catch (e) {
-        console.log(e); // change to logger
+        App.logger.error(e);
     }
 
 }

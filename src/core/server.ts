@@ -12,19 +12,19 @@ export default class App {
 
     public static database: Connection;
 
+    public static logger = pino();
+
     private port: number = parseInt(process.env.PORT, 10) || 3000;
 
     private server: Server;
 
     private databaseInstance: Connection;
 
-    private logger = pino();
-
     private cronService: CronService;
 
     public async run(): Promise<void> {
         try {
-            this.logger.info(`Server starting at PORT: ${this.port}`);
+            App.logger.info(`Server starting at PORT: ${this.port}`);
 
             this.server = this.setupHttp();
             await this.database();
@@ -33,14 +33,14 @@ export default class App {
             await this.initCronService();
 
             this.server.on("error", (err: Error) => {
-                this.logger.error("Could not start a server", err);
+                App.logger.error("Could not start a server", err);
             });
 
             this.server.listen(this.port, () => {
-                this.logger.info(`Listening at http://localhost:${this.port}/`);
+                App.logger.info(`Listening at http://localhost:${this.port}/`);
             });
         } catch (error) {
-            this.logger.error(error);
+            App.logger.error(error);
         }
     }
 
@@ -96,7 +96,7 @@ export default class App {
         monitoringResultsController.initialize(this.server);
 
         this.server.get('/health-check', (req: Request, res: Response) => {
-            this.logger.debug('Health check');
+            App.logger.debug('Health check');
             res.json({
                 status: "ok",
             });
