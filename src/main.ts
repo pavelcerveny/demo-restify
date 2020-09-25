@@ -7,5 +7,9 @@ server.run();
 process.on('uncaughtException', async (err) => {
     // graceful shutdown
     server.clearCronJobs();
-    await server.stop();
+});
+
+process.on('unhandledRejection', async (err) => {
+    // graceful shutdown
+    server.clearCronJobs();
 })

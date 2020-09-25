@@ -38,6 +38,14 @@ export default class CronService {
         }
     }
 
+    public getInterval(name: string): any {
+        return this.cronManager.getInterval(name);
+    }
+
+    public getIntervals(): any[] {
+        return this.cronManager.getIntervals();
+    }
+
     public deleteInterval(name: string): void {
         this.cronManager.deleteInterval(name);
     }

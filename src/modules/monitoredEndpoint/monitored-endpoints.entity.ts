@@ -43,6 +43,9 @@ export class MonitoredEndpoint {
     @ManyToOne(
         type => User,
         user => user.monitoredEndpoints,
+        {
+            eager: true
+        }
     )
     @JoinColumn({ name: 'user_id' })
     user: User;

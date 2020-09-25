@@ -1,4 +1,4 @@
-import {Request, Response} from "restify";
+import {Next, Request, Response} from "restify";
 import {Controller} from "../controller.interface";
 import App from "../../core/server";
 import MonitoredEndpointsService from "./monitored-endpoints.service";
@@ -19,10 +19,17 @@ export class MonitoredEndpointsController implements Controller {
         this.monitoredEndpointsService = new MonitoredEndpointsService(app);
     }
 
-    private async list(req: Request, res: Response): Promise<void> {
+    private async list(req: Request, res: Response, next: Next): Promise<void> {
         try {
-            const items = await this.monitoredEndpointsService.getEndpoints(req?.params?.limit, req?.params?.offset);
-            res.json(200, items);
+            // dump find-my-way router
+            if (req.params?.id) {
+                return;
+            }
+            const response = await this.monitoredEndpointsService.getEndpoints(req?.query?.limit, req?.query?.offset);
+            if (response.success) {
+                res.json(200, response);
+            }
+
         } catch (e) {
             App.logger.error(e);
             res.json(500, {message: 'internal error'});
@@ -30,6 +37,16 @@ export class MonitoredEndpointsController implements Controller {
     }
 
     private async getById(req: Request, res: Response): Promise<void> {
+        try {
+            const response = await this.monitoredEndpointsService.getEndpointById(req?.params?.id);
+            if (response.success) {
+                res.json(200, response);
+            }
+
+        } catch (e) {
+            App.logger.error(e);
+            res.json(500, {message: 'internal error'});
+        }
         try {
             const items = await this.monitoredEndpointsService.getEndpoints(req?.params?.limit, req?.params?.offset);
             res.json(200, items);
@@ -43,14 +60,13 @@ export class MonitoredEndpointsController implements Controller {
             // @ts-ignore
             const userId = req.user;
             const result = await this.monitoredEndpointsService.createEndpoint(req.body, userId);
-
-            if (result instanceof MonitoredEndpoint) {
+            if (result.success) {
                 res.json(201, {
-                    id: result.id,
-                    name: result.name,
-                    url: result.url,
-                    monitored_interval: result.monitored_interval,
-                    username: result.user.username
+                    id: result.data.id,
+                    name: result.data.name,
+                    url: result.data.url,
+                    monitored_interval: result.data.monitored_interval,
+                    username: result.data.user.username
                 });
             } else {
                 res.json(400, result);
@@ -63,18 +79,42 @@ export class MonitoredEndpointsController implements Controller {
 
     private async update(req: Request, res: Response): Promise<void> {
         try {
-            const items = await this.monitoredEndpointsService.getEndpoints(req?.params?.limit, req?.params?.offset);
-            res.json(200, items);
+
+            const result = await this.monitoredEndpointsService.updateEndpoint(req.params?.id, req.body);
+
+            if (result.success) {
+                res.json(200, {
+                    id: result.data.id,
+                    name: result.data.name,
+                    url: result.data.url,
+                    monitored_interval: result.data.monitored_interval,
+                    username: result.data.user.username
+                });
+            } else {
+                res.json(400, result);
+            }
         } catch (e) {
+            App.logger.error(e);
             res.json(500, {message: 'internal error'});
         }
     }
 
     private async delete(req: Request, res: Response): Promise<void> {
         try {
-            const items = await this.monitoredEndpointsService.getEndpoints(req?.params?.limit, req?.params?.offset);
-            res.json(200, items);
+            const result = await this.monitoredEndpointsService.deleteEndpoint(req.params?.id);
+            if (result.success) {
+                res.json(200, {
+                    id: result.data.id,
+                    name: result.data.name,
+                    url: result.data.url,
+                    monitored_interval: result.data.monitored_interval,
+                    username: result.data.user.username
+                });
+            } else {
+                res.json(400, result);
+            }
         } catch (e) {
+            App.logger.error(e);
             res.json(500, {message: 'internal error'});
         }
     }

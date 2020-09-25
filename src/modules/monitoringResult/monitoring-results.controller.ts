@@ -9,12 +9,24 @@ export class MonitoringResultsController implements Controller {
     private monitoringResultsService: MonitoringResultsService;
 
     public initialize = (app: App): void => {
-        app.getServer().get('/monitoring-results', [apiKeyAuthMiddleware, this.list]);
+        app.getServer().get('/monitoring-results', [apiKeyAuthMiddleware, this.list.bind(this)]);
         this.monitoringResultsService = new MonitoringResultsService(app);
     }
 
     private async list(req: Request, res: Response): Promise<void> {
-        const results = this.monitoringResultsService.getResults(req.params?.limit);
-        res.json(200, results);
+        try {
+            const results = await this.monitoringResultsService.getResults(req.query?.name, req.query?.limit);
+
+            if (results.success) {
+                res.json(200, results);
+            } else {
+                res.json(400, results);
+            }
+
+        } catch (e) {
+            App.logger.error(e);
+            res.json(500, {message: 'internal error'});
+        }
+
     }
 }

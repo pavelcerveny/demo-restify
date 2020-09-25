@@ -1,6 +1,8 @@
 const path = require('path');
 
 const dev = {
+    "username": "root",
+    "password": "",
     "host": "localhost",
     "entities": [
         path.join(__dirname, '/src/modules/**/**.entity{.ts,.js}')
@@ -16,6 +18,8 @@ const dev = {
 };
 
 const prod = {
+    "username": "app_user",
+    "password": "app_extra_secret",
     "host": "localhost",
     "entities": [
         path.join(__dirname, '/dist/modules/**/**.entity.js')
@@ -37,10 +41,9 @@ const config = process.env.NODE_ENV === 'production'
 module.exports = {
     "type": "mysql",
     "port": 3306,
-    "username": "root",
-    "password": "",
     "database": "app",
     "synchronize": false,
+    "timezone": "Z",
     // "logging": true,
     ...config
 };
