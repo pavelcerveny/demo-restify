@@ -5,8 +5,9 @@ import {createConnection} from "typeorm";
 import {Connection} from "typeorm/connection/Connection";
 import {UsersController} from "../modules/user/users.controller";
 import {MonitoringResultsController} from "../modules/monitoringResult/monitoring-results.controller";
-import CronService from "./cron/cron.service";
 import {MonitoredEndpoint} from "../modules/monitoredEndpoint/monitored-endpoints.entity";
+import CronService from "./cron/cron.service";
+import {MonitoredEndpointsController} from "../modules/monitoredEndpoint/monitored-endpoints.controller";
 
 export default class App {
 
@@ -44,6 +45,14 @@ export default class App {
         }
     }
 
+    public getServer(): Server {
+        return this.server;
+    }
+
+    public getCronService(): CronService {
+        return this.cronService;
+    }
+
     public setupHttp(): Server {
         return restify.createServer();
     }
@@ -63,7 +72,6 @@ export default class App {
 
     private middlewares = (): void => {
         this.server.use(restify.plugins.queryParser());
-        this.server.use(restify.plugins.bodyParser());
         this.server.use(restify.plugins.jsonBodyParser());
 
         this.server.use(
@@ -75,25 +83,35 @@ export default class App {
         );
     }
 
-    private monitor() {
-
-    }
-
-    private async initCronService() {
-        this.cronService = new CronService();
+    private async initCronService(): Promise<void> {
+        this.cronService = new CronService(this);
         const cronJobs = await this.getDatabase().getRepository(MonitoredEndpoint).find();
         cronJobs.forEach(job => {
-           this.cronService.addInterval(job.name, this.monitor);
+           this.cronService.addInterval({
+               name: job.name,
+               cbName: 'fetch',
+               options: {
+                   url: job.url,
+                   timeout: job.monitored_interval,
+                   endpointId: job.id
+               }
+           });
         });
-        this.cronService.mountIntervals();
+    }
+
+    public clearCronJobs(): void {
+        this.cronService.clearIntervals();
     }
 
     private routes = (): void => {
 
         const usersController = new UsersController();
         const monitoringResultsController = new MonitoringResultsController();
-        usersController.initialize(this.server);
-        monitoringResultsController.initialize(this.server);
+        const monitoredEndpointsController = new MonitoredEndpointsController();
+
+        usersController.initialize(this);
+        monitoringResultsController.initialize(this);
+        monitoredEndpointsController.initialize(this);
 
         this.server.get('/health-check', (req: Request, res: Response) => {
             App.logger.debug('Health check');

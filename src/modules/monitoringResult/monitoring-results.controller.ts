@@ -1,21 +1,32 @@
-import {Request, Response, Server} from "restify";
+import {Request, Response} from "restify";
 import {Controller} from "../controller.interface";
-import {apiKeyAuthMiddleware} from "../../core/auth";
 import App from "../../core/server";
-import {MonitoringResult} from "./monitoring-results.entity";
+import {apiKeyAuthMiddleware} from "../../core/auth/auth.service";
+import MonitoringResultsService from "./monitoring-results.service";
 
 export class MonitoringResultsController implements Controller {
-    public static DEFAULT_LIMIT: number = 10;
 
-    public initialize = (httpServer: Server): void => {
-        httpServer.get('/monitoring-results', [apiKeyAuthMiddleware, this.list]);
+    private monitoringResultsService: MonitoringResultsService;
+
+    public initialize = (app: App): void => {
+        app.getServer().get('/monitoring-results', [apiKeyAuthMiddleware, this.list.bind(this)]);
+        this.monitoringResultsService = new MonitoringResultsService(app);
     }
 
     private async list(req: Request, res: Response): Promise<void> {
-        const results = await App.database.getRepository(MonitoringResult).find({
-            take: req.params.limit ?? MonitoringResultsController.DEFAULT_LIMIT,
-            order: {checked_at: "DESC"}
-        });
-        res.json(200, results);
+        try {
+            const results = await this.monitoringResultsService.getResults(req.query?.name, req.query?.limit);
+
+            if (results.success) {
+                res.json(200, results);
+            } else {
+                res.json(400, results);
+            }
+
+        } catch (e) {
+            App.logger.error(e);
+            res.json(500, {message: 'internal error'});
+        }
+
     }
 }

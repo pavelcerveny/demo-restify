@@ -28,10 +28,6 @@ export class User {
     @OneToMany(
         type => MonitoredEndpoint,
         monitoredEndpoints => monitoredEndpoints.user,
-        {
-            eager: true,
-            cascade: ['insert', 'update', 'remove'],
-        },
     )
     monitoredEndpoints: MonitoredEndpoint[];
 }
