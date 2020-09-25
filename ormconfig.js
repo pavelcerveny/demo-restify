@@ -41,6 +41,6 @@ module.exports = {
     "password": "",
     "database": "app",
     "synchronize": false,
-    "logging": true,
+    // "logging": true,
     ...config
 };

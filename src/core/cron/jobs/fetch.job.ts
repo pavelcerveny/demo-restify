@@ -1,4 +1,6 @@
 import {Connection} from "typeorm";
+import fetch from 'node-fetch';
+
 import {MonitoringResult} from "../../../modules/monitoringResult/monitoring-results.entity";
 import {MonitoredEndpoint} from "../../../modules/monitoredEndpoint/monitored-endpoints.entity";
 import App from "../../server";
@@ -13,13 +15,16 @@ interface CronJobData {
     url: string;
 }
 
-export default async function FetchJob ({cronJob, database}: CronJobProps): Promise<void> {
+export default async function FetchJob({cronJob, database}: CronJobProps): Promise<void> {
     const response = await fetch(cronJob.url);
     const responseBody = await response.text();
-
+    const monitoredEndpoint: MonitoredEndpoint = await database.getRepository(MonitoredEndpoint).findOne(cronJob.endpointId);
+    monitoredEndpoint.last_check = new Date();
+    await database.getRepository(MonitoredEndpoint).save(monitoredEndpoint);
+    
     const monitoringResult = new MonitoringResult();
     monitoringResult.checked_at = new Date();
-    monitoringResult.monitoredEndpoint = await database.getRepository(MonitoredEndpoint).findOne(cronJob.endpointId);
+    monitoringResult.monitoredEndpoint = monitoredEndpoint;
     monitoringResult.payload = responseBody;
     monitoringResult.status_code = response.status;
 

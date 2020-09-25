@@ -1,5 +1,5 @@
-import {Server} from "restify";
+import App from "../core/server";
 
 export interface Controller {
-    initialize(httpServer: Server): void;
+    initialize(app: App): void;
 }

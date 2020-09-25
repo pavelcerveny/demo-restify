@@ -1,56 +1,50 @@
-import { CronJob } from 'cron';
 import CronManager from "./cron.manager";
+import FetchJob from "./jobs/fetch.job";
+import App from "../server";
+
+interface AddCronJob {
+    name: string;
+    cbName: string;
+    options: {
+        url: string,
+        timeout: number,
+        endpointId: number
+    }
+}
 
 export default class CronService {
 
     private readonly cronManager: CronManager = new CronManager();
 
-    public addInterval(name: string, cb: any) {
-
+    public constructor(private readonly app: App) {
     }
 
-    mountIntervals() {
-        const intervalKeys = Object.keys(this.cronManager.getIntervals());
-        intervalKeys.forEach((key) => {
-            const options = this.cronManager.getInterval(key);
-            const intervalRef = setInterval(options.target, options.timeout);
 
-            options.ref = intervalRef;
-            this.cronManager.addInterval(key, intervalRef);
-        });
-    }
-
-    mountCron() {
-        const cronKeys = Object.keys(this.cronManager.getCronJobs());
-        cronKeys.forEach((key) => {
-            const { options, target } = this.cronManager.getCronJob(key);
-            const cronJob = new CronJob(
-                options.cronTime,
-                target as any,
-                undefined,
-                false,
-                options.timeZone,
-                undefined,
-                false,
-                options.utcOffset,
-                options.unrefTimeout,
+    public addInterval(props: AddCronJob): void {
+        if (!this.cronManager.getInterval(props.name)) {
+            const intervalRef = setInterval(
+                FetchJob,
+                props.options.timeout * 1000,
+                {
+                    cronJob: {
+                        url: props.options.url,
+                        endpointId: props.options.endpointId,
+                    },
+                    database: this.app.getDatabase()
+                }
             );
-            cronJob.start();
 
-            this.cronJobs[key].ref = cronJob;
-            this.addCronJob(key, cronJob);
-        });
+            this.cronManager.addInterval(props.name, intervalRef);
+        }
     }
 
-    clearIntervals() {
-        Array.from(this.getIntervals()).forEach((key) =>
-            this.deleteInterval(key),
-        );
+    public deleteInterval(name: string): void {
+        this.cronManager.deleteInterval(name);
     }
 
-    closeCronJobs() {
-        Array.from(this.getCronJobs().keys()).forEach((key) =>
-            this.deleteCronJob(key),
+    clearIntervals(): void {
+        Array.from(this.cronManager.getIntervals()).forEach((key) =>
+            this.cronManager.deleteInterval(key),
         );
     }
 }

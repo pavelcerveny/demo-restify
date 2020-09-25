@@ -13,6 +13,9 @@ export const apiKeyAuthMiddleware = async (req: Request, res: Response, next: Ne
 		});
 
 		if (user) {
+			// todo -> merge declaration
+			// @ts-ignore
+			req.user = user.id;
 			return next();
 		}
 	}

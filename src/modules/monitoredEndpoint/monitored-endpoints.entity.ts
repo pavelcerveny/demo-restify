@@ -1,6 +1,7 @@
 import {Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {MonitoringResult} from "../monitoringResult/monitoring-results.entity";
 import {User} from "../user/user.entity";
+import {IsInt, IsUrl, IsString} from "class-validator";
 
 @Entity('monitored_endpoints')
 export class MonitoredEndpoint {
@@ -8,22 +9,25 @@ export class MonitoredEndpoint {
     id: number;
 
     @Column()
+    @IsString()
     name: string;
 
     @Column()
+    @IsUrl()
     url: string;
 
     @Column({
-        type: "date",
+        type: "datetime",
     })
     created_at: Date;
 
     @Column({
-        type: "date",
+        type: "datetime",
     })
     last_check: Date;
 
     @Column()
+    @IsInt()
     monitored_interval: number;
 
     @OneToMany(

@@ -25,7 +25,7 @@ export class MonitoringResults1600889292774 implements MigrationInterface {
                 },
                 {
                     name: "payload",
-                    type: "varchar",
+                    type: "mediumtext",
                     isNullable: false,
                 },
                 {

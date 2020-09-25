@@ -7,7 +7,7 @@ export class MonitoringResult {
     id: number;
 
     @Column({
-        type: "date",
+        type: "datetime",
     })
     checked_at: Date;
 
