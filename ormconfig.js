@@ -20,7 +20,7 @@ const dev = {
 const prod = {
     "username": "app_user",
     "password": "app_extra_secret",
-    "host": "localhost",
+    "host": "mysql",
     "entities": [
         path.join(__dirname, '/dist/modules/**/**.entity.js')
     ],
