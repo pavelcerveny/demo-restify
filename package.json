@@ -1,8 +1,8 @@
 {
-  "name": "nest",
+  "name": "demo-restify",
   "version": "0.0.0",
-  "description": "description",
-  "author": "",
+  "description": "multi-health check service",
+  "author": "Pavel Červený",
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
