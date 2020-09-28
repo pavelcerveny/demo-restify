@@ -19,7 +19,7 @@ export default class App {
 
     private server: Server;
 
-    private databaseInstance: Connection;
+    public databaseInstance: Connection;
 
     private cronService: CronService;
 

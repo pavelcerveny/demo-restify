@@ -9,13 +9,13 @@ export class MonitoringResultsController implements Controller {
     private monitoringResultsService: MonitoringResultsService;
 
     public initialize = (app: App): void => {
-        app.getServer().get('/monitoring-results', [apiKeyAuthMiddleware, this.list.bind(this)]);
+        app.getServer().get('/monitoring-results/:name', [apiKeyAuthMiddleware, this.list.bind(this)]);
         this.monitoringResultsService = new MonitoringResultsService(app);
     }
 
     private async list(req: Request, res: Response): Promise<void> {
         try {
-            const results = await this.monitoringResultsService.getResults(req.query?.name, req.query?.limit);
+            const results = await this.monitoringResultsService.getResults(req.params.name, req.query?.limit);
 
             if (results.success) {
                 res.json(200, results);

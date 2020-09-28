@@ -29,27 +29,11 @@ describe('App server Test', () => {
     });
 
     it('should not authenticate', async (done) => {
-        const res = await request.get('/monitoring-results');
+        const res = await request.get('/monitored-endpoints');
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Unauthorized');
         done();
     });
-
-    it('should get monitoring results', async (done) => {
-        const res = await request
-            .get('/monitoring-results')
-            .set('x-api-key', '93f39e2f-80de-4033-99ee-249d92736a25');
-        expect(res.status).toBe(400);
-        expect(res.body).toMatchObject({
-            "success": false,
-            "error": {
-                "property": "name",
-                "err": "property is missing"
-            }
-        });
-        done();
-    });
-
 
     afterAll(() => {
         app.stop();

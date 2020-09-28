@@ -66,6 +66,8 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "globalSetup": "./utils/setup.js",
+    "globalTeardown": "./utils/teardown.js"
   }
 }

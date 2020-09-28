@@ -47,12 +47,6 @@ export class MonitoredEndpointsController implements Controller {
             App.logger.error(e);
             res.json(500, {message: 'internal error'});
         }
-        try {
-            const items = await this.monitoredEndpointsService.getEndpoints(req?.params?.limit, req?.params?.offset);
-            res.json(200, items);
-        } catch (e) {
-            res.json(500, {message: 'internal error'});
-        }
     }
 
     private async create(req: Request, res: Response): Promise<void> {
