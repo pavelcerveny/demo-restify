@@ -1,0 +1,65 @@
+openapi: 3.0.0
+info:
+  title: Card Checking
+  version: '1.0'
+  license:
+    name: MIT
+  contact:
+    name: Pavel Červený
+  description: ''
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  '/card/check/{cardId}':
+    get:
+      summary: Get Card Validity Data
+      tags: []
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardData'
+      operationId: get-card-check
+      description: Get state and validity of given card.
+    parameters:
+      - schema:
+          type: number
+        name: cardId
+        in: path
+        required: true
+        description: Card Number
+components:
+  schemas:
+    CardData:
+      title: CardData
+      type: object
+      x-examples:
+        example-1:
+          state: Aktivní v držení klienta
+          validity_end: 12.8.2020
+        example-2-empty:
+          state: ''
+          validity_end: ''
+      description: Card Checking response
+      properties:
+        state:
+          type: string
+          description: Checking card state
+        validity_end:
+          type: string
+          description: Checking card end of validity
+          format: date
+          default: 12.8.2020
+      required:
+        - state
+        - validity_end
+  securitySchemes:
+    x-api-key:
+      name: API Key
+      type: apiKey
+      in: header
+security:
+  - x-api-key: []
