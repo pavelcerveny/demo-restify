@@ -52,6 +52,18 @@ ALTER TABLE `monitoring_results`
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
+ALTER TABLE `migrations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+ALTER TABLE `monitored_endpoints`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `monitoring_results`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
 --
 ALTER TABLE `monitored_endpoints`
   ADD CONSTRAINT `FK_d6b8b7e91a0ef3ea22e0d92749e` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
