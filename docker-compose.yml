@@ -12,6 +12,7 @@ services:
       MYSQL_DATABASE: "app"
     volumes:
       - ./docker/mysql:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/mysql
     networks:
         - restify
   restify-demo:
